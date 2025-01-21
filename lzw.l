@@ -2,7 +2,7 @@
 # Compress the current input stream using the lzw algorithm and return a list of encoded data
 
 #{
-Requires (fnvHash)
+Requires (fnvHasher)
 The functions use (idx) to store code, indexed by their hash. 
 An (assoc) list is used to manage any hash collisions
 
