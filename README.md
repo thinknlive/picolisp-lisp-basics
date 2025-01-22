@@ -1,1 +1,1 @@
-## Misc collection of picolisp code hacking
+## PicoLisp hacking
