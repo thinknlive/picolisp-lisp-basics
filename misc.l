@@ -134,3 +134,19 @@
             (setq L (shiftCar L (% (RndFn) (length L)))) )
          (pack L) ) )
 
+#{
+Example:
+: (ljl~passwdCurry "1234567890JQKA")
+-> "78904JQK13265A"
+: (ljl~passwdCurry "1234567890JQKA" 97)
+-> "46J78129A53K0Q"
+: (ljl~passwdCurry "TheFiveBoxingWizardsJumpQuickly")
+-> "uneFmvzpQioiuTeicBxWiJaklsdyhrg"
+: (ljl~passwdCurry "TheFiveBoxingWizardsJumpQuickly.." 97)
+-> "iuzorexuiB.mTyQdshWklFnJecpa.viig"
+: (ljl~passwdCurry "0123456789ABCDEF")
+-> "718694A0BC52DE3F"
+: (ljl~passwdCurry "0123456789ABCDEF" 73)
+-> "8E42C10B9D36F75A"
+:
+{#
