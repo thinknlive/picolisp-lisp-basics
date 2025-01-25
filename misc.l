@@ -1,3 +1,5 @@
+(symbols 'ljl 'pico)
+
 # Given a list move the first element of the list (car) N positions into the list
 # (setq X '(* A B C D))
 # (shiftCar X 1)
@@ -36,3 +38,39 @@
                (format X)
                (if (= " " X) "-" NIL) ) )
          (chop (stamp T)) ) ) )
+
+# Write the current (history) list to a timestamped file
+
+(de writeHistory NIL
+   (let (FileName (pack (timeStamp) "-pil-history.l"))
+      (out FileName (pretty (history)))
+      FileName ) )
+
+# Read a previously saved (history) list and append to current (history) list
+
+(de readHistory (FileName)
+   (let
+      (savedHistory (if (info FileName) (in FileName (read)) NIL)
+         currentHistory (history) )
+      (history (if savedHistory (consFlatten (cons currentHistory savedHistory)) currentHistory))
+      (length savedHistory) ) )
+
+
+# Generate a password of specified PLength, selecting characters at random from C1
+# If SymCnt is given then, every N characters, insert a random 'comma' from C2
+
+(de makePasswd (PLength SymCnt)
+   (default PLength 7)
+   (default SymCnt (inc PLength))
+   (let
+      (C1 (chop "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz")
+         L1 (length C1)
+         C2 (chop ".#+!")
+         L2 (length C2) )
+      (pack
+         (make
+            (for N PLength
+               (link
+                  (if (=0 (% N SymCnt))
+                     (nth C2 (rand 1 L2) 1)
+                     (nth C1 (rand 1 L1) 1) ) ) ) ) ) ) )
