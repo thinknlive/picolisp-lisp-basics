@@ -12,6 +12,7 @@
       (list LOut LErr) ) )
 
 # A few auxillary functions to generate random strings using a Lehmer pseudo random generator
+# Note: (randR) is quite slow compared to the built-in (rand) function
 
 (de randomLehmer (@Seed)
    (curry
@@ -30,18 +31,17 @@
          (for N Cnt
             (link
                (char
-                  (case (rand 1 3)
-                     (1 (rand 48 57))
-                     (2 (rand 65 90))
-                     (3 (rand 97 122)) ) ) ) ) ) ) )
-                     
+                  (case (randR 1 3)
+                     (1 (randR 48 57))
+                     (2 (randR 65 90))
+                     (3 (randR 97 122)) ) ) ) ) ) ) )                     
 
 # Example: Interfacing with sqlite
 
-: (call "rm" "testdb.sqlite")
+: (when (info "testdb.sqlite") (call "rm" "testdb.sqlite"))
 -> T
 
-# Insert 1,000,000 random names of length 7
+# Insert 1,000,000 records with names of length 7
 
 : (bench (let (Sql '(
   ".mode quote"
@@ -54,14 +54,15 @@
       (make (do 1000000 (link (pack "insert into test (name) values ('" (makeRndName 7) "');"))))
       '("commit;")
       '("select count(*) from test;")))
-  (runExe Sql sqlite3 "testdb.sqlite")))
-11.325 sec
+  (bench (runExe Sql sqlite3 "-bail" "testdb.sqlite"))))
+9.205 sec
+17.357 sec
 -> (("1000000") NIL)
 
-# Insert another 1,000,000 random names of length 7
+# Insert another 1,000,000 records with names of length 7
 
 : (bench (let (Sql '(
-  ".mode quote"
+  ".mode quote"))
   (setq Sql
     (append
       Sql
@@ -69,12 +70,12 @@
       (make (do 1000000 (link (pack "insert into test (name) values ('" (makeRndName 7) "');"))))
       '("commit;")
       '("select count(*) from test;")))
-  (runExe Sql sqlite3 "testdb.sqlite")))
-11.361 sec
+  (bench (runExe Sql sqlite3 "-bail" "testdb.sqlite"))))
+9.668 sec
+17.395 sec
 -> (("2000000") NIL)
-:
 
-# Use a unique index to report collisions inserting 100,000 names of length 5
+# Insert 100,000 records with names of length 5. Track and report collisions
 
 : (bench (let (Sql '(
   ".mode quote"
@@ -91,16 +92,17 @@
       '("select id, name, cnt from test where cnt > 1;")
       '("select 'Collision Count: '||count(*) from test where cnt > 1;")
       '("select 'Record Count: ' || count(*) from test;")))
-  (runExe Sql sqlite3 "testdb.sqlite")))
-3.203 sec
--> (("3586,'EvX2P',2" "22646,'i7M73',2" "23745,'TBBl3',2" "24059,'Ht9q1',2" 
-     "33958,'94w50',2" "35168,'2n711',2" "40635,'Pgw90',2" 
-     "45943,'6Y47O',2" "51983,'225U1',2" "60823,'5D9F9',2" 
-     "67098,'MhSE7',2" "70981,'ABkB5',2" "72260,'95508',2" 
-     "74481,'jaz13',2" "76302,'1oDd1',2" "78656,'d8y91',2" 
-     "'Collision Count: 16'" "'Record Count: 99984'") NIL)
+  (bench (runExe Sql sqlite3 "testdb.sqlite"))))
+4.113 sec
+4.792 sec
+-> (("603,'49p0f',2" "5234,'59q18',2" "9197,'RD129',2" "21510,'2ZJYw',2" 
+      "22670,'mW697',2" "25518,'4397H',2" "25916,'2yL1F',2" "26721,'S5w7k',2" 
+      "42965,'u68r2',2" "43144,'2U29u',2" "54592,'57T91',2" "59298,'24956',2" 
+      "71996,'3T706',2" "73238,'5Kv8A',2" "91299,'O6z7o',2" 
+      "'Collision Count: 15'" 
+      "'Record Count: 99985'") NIL)
 
-# Use a unique index to report collisions inserting 100,000 names of length 7
+# Insert 100,000 records with names of length 7. Track and report collisions
 
 : (bench (let (Sql '(
   ".mode quote"
@@ -117,6 +119,18 @@
       '("select id, name, cnt from test where cnt > 1;")
       '("select 'Collision Count: '||count(*) from test where cnt > 1;")
       '("select 'Record Count: ' || count(*) from test;")))
-  (runExe Sql sqlite3 "testdb.sqlite")))
-3.485 sec
+  (bench (runExe Sql sqlite3 "testdb.sqlite"))))
+2.671 sec
+3.406 sec
 -> (("'Collision Count: 0'" "'Record Count: 100000'") NIL)
+
+# Generate and show an error
+
+: (bench (let (Sql '(
+  ".mode quote"
+  "create table if not exists test(id integer primary key, name text, cnt int default 1);"
+  "create unique index uix_test_name on test(name);"))
+  (runExe Sql sqlite3 "-bail" "testdb.sqlite")))
+0.125 sec
+-> (NIL ("Error: near line 3: index uix_test_name already exists"))
+:
