@@ -166,7 +166,8 @@
                      
 
 # Used to pipe an external process (in this case sqlite) and capture the results
-# Note: This assumes line oriented text response and that stdout and stderr of the external process are returned in separate lists.
+# Note: This assumes line oriented text response
+# Note: stdout and stderr capture of the external process are returned in separate lists.
   
 (de runExe (Cmds . Exe)
    (use (LOut LErr)
