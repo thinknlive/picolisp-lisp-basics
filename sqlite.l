@@ -26,7 +26,7 @@
       (make (do 10000 (link (pack
         "insert into test (name) values (" (sqlQuote (makeRndName 4)) ") on conflict (name) do update set cnt = cnt + 1;"))))
       '("commit;")
-      '("select json_array(id, name, cnt) from test where cnt > 1;")
+      '("select json_array(id, name, cnt, (hex(randomblob(16)))) from test where cnt > 1;")
       '("select json_array('CollisionCount', count(*)) from test where cnt > 1;")
       '("select json_array('RecordCount', count(*)) from test;")))
   (bench (mapc '((R) (let (Row (head -2 (nth (chop R) 3))
@@ -34,26 +34,21 @@
                      (prin R " --> ") (print Flds) (prinl  " : " (length Flds))))
                 (car (runExe Sql sqlite3 "testdb.sqlite"))) ]
 
-
-'[101,"yg\"e",2]' --> ("101" "yg\"e" "2") : 3
-'[129,"ᘐᘐ35",2]' --> ("129" "ᘐᘐ35" "2") : 3
-'[326,",\nU6",2]' --> ("326" ",^JU6" "2") : 3
-'[636,"\"Ycᘐ",2]' --> ("636" "\"Ycᘐ" "2") : 3
-'[1413,"\"1\"\\",2]' --> ("1413" "\"1\"\\" "2") : 3
-'[1649,"15Yᘐ",2]' --> ("1649" "15Yᘐ" "2") : 3
-'[1741,"\"\"8👍",2]' --> ("1741" "\"\"8👍" "2") : 3
-'[1912,"4\\8C",2]' --> ("1912" "4\\8C" "2") : 3
-'[3192,"2\n\"\n",2]' --> ("3192" "2^J\"^J" "2") : 3
-'[3286,"ᘐ👍4ᘐ",2]' --> ("3286" "ᘐ👍4ᘐ" "2") : 3
-'[3420,"9\nKZ",2]' --> ("3420" "9^JKZ" "2") : 3
-'[3895,"005ᘐ",2]' --> ("3895" "005ᘐ" "2") : 3
-'[4047,"47,8",2]' --> ("4047" "47,8" "2") : 3
-'[4354,"4\"4,",2]' --> ("4354" "4\"4," "2") : 3
-'[7194,"h\"k7",2]' --> ("7194" "h\"k7" "2") : 3
-'["CollisionCount",15]' --> ("CollisionCount" "15") : 2
-'["RecordCount",9985]' --> ("RecordCount" "9985") : 2
-0.114 sec
-0.140 sec
+'[91,",57,",2,"ADFAA494D85CFF36E3CD136EA18CF47B"]' --> ("91" ",57," "2" "ADFAA494D85CFF36E3CD136EA18CF47B") : 4
+'[353,"👍ᘐ\\,",2,"A011BA30FABC582E4507D73917DC556F"]' --> ("353" "👍ᘐ\\," "2" "A011BA30FABC582E4507D73917DC556F") : 4
+'[426,",ᘐ,\\",2,"D4E28D7F0FA5C1B6AEB4608FAB6A8C44"]' --> ("426" ",ᘐ,\\" "2" "D4E28D7F0FA5C1B6AEB4608FAB6A8C44") : 4
+'[1099,"\n\n8ᘐ",2,"016FECE7567C6E107B6FBB64C5BD45FC"]' --> ("1099" "^J^J8ᘐ" "2" "016FECE7567C6E107B6FBB64C5BD45FC") : 4
+'[1620,"👍H2N",2,"9CE9F9B97AFC42A7AEE3B8435E6CDC7F"]' --> ("1620" "👍H2N" "2" "9CE9F9B97AFC42A7AEE3B8435E6CDC7F") : 4
+'[4097,"ᘐ4,4",2,"41FF6006FDD872AC07560E9A5BB8B6DC"]' --> ("4097" "ᘐ4,4" "2" "41FF6006FDD872AC07560E9A5BB8B6DC") : 4
+'[6070,"\n\\ᘐ\n",2,"871DE1E026AAF6C4DB0DF2360639DBBF"]' --> ("6070" "^J\\ᘐ^J" "2" "871DE1E026AAF6C4DB0DF2360639DBBF") : 4
+'[7228,"2👍\"\\",2,"F5AB86B62AB4D7FBFB413C6F7650859D"]' --> ("7228" "2👍\"\\" "2" "F5AB86B62AB4D7FBFB413C6F7650859D") : 4
+'[8139,"4\",\\",2,"16A1182CD11B97B6936E077BC8417C99"]' --> ("8139" "4\",\\" "2" "16A1182CD11B97B6936E077BC8417C99") : 4
+'[8381,"\"n\"\\",2,"6592FE3F4A1D336A8E74A6BB97CC374E"]' --> ("8381" "\"n\"\\" "2" "6592FE3F4A1D336A8E74A6BB97CC374E") : 4
+'["CollisionCount",10]' --> ("CollisionCount" "10") : 2
+'["RecordCount",9990]' --> ("RecordCount" "9990") : 2
+0.110 sec
+0.135 sec
+-> 2
 
 # =======================================================================================================
 # The following functions are used in the above example
