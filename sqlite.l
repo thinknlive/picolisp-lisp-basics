@@ -1,9 +1,9 @@
 # Example showing 
 # 1. How to reliably INSERT into a sqlite db from picolisp 
-#    - uses the picolisp function 'sqlQuote' to properly encode parameters
+#    - uses the function 'sqlQuote' to properly encode parameter values for sqlite
 # 2. How to reliably SELECT from a sqlite db and parse the response back into picolisp
 #    - uses the 'json_array' function of sqlite to return each row of the result set as a json array
-#    - uses the picolisp function 'fldParseQ' to parse a json array into a list of strings, handling escapes, unicode, etc
+#    - uses the function 'fldParseQ' to parse a sqlite json array into a list of transients, handling escapes, unicode, etc
 
 # =======================================================================================================
 # Without further ado...
