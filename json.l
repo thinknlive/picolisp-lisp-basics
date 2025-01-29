@@ -1,4 +1,8 @@
 # JSON parser: Compliant (mostly)
+
+# I needed something like this to process json results returned from sqlite
+# I wanted a very consistent structure, easy to read and extract values from; nested 'assoc' lists and cons pairs fit nicely for this purpose.
+
 # Uses 'assoc' lists for objects and arrays
 # Stores all values as strings but attaches an inferred type in a cons pair; 
 #     string,boolean,null,number,undefined,chars. The last for unquoted strings that don't look like valid numbers
