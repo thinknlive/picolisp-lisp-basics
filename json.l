@@ -6,6 +6,7 @@
 # Objects: ((NIL . "object")("1" 1 "number")...)
 
 # TODO: Add a helper function to extract values and types, something like 'nth' but for json
+# TODO: More compact format? Perhaps using ints or abbreviations for types
 
 # Some examples
 
