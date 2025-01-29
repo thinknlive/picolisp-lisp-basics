@@ -21,16 +21,24 @@
 ("false" . "boolean")-> ("false" . "boolean")
 : (let (Lst (chop "null")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ("null" . "null")-> ("null" . "null")
+
 : (let (Lst (chop "")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 (NIL . "undefined")-> (NIL . "undefined")
+
+: (let (Lst (chop "[{}]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+((NIL . "array") (1 (NIL . "object")))-> ((NIL . "array") (1 (NIL . "object")))
+
+: (let (Lst (chop "{array:[]}")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+((NIL . "object") ("array" (NIL . "array")))-> ((NIL . "object") ("array" (NIL . "array")))
+
 : (let (Lst (chop "[1,2,3,4]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ((NIL . "array")
    (1 "1" . "number")
    (2 "2" . "number")
    (3 "3" . "number")
    (4 "4" . "number") )-> " )"
-: (let (Lst (chop "{\"Language\":\"PicoLisp\",Name:\"BuoyantHacker\",\"Level\":3,\"FavBook\":\"Modes of Thought\"}")) (setq *
-JP (car (jsonParse Lst))) (pretty *JP))
+
+: (let (Lst (chop "{\"Language\":\"PicoLisp\",Name:\"BuoyantHacker\",\"Level\":3,\"FavBook\":\"Modes of Thought\"}")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ((NIL . "object")
    ("Language" "PicoLisp" . "string")
    ("Name" "BuoyantHacker" . "string")
