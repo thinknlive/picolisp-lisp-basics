@@ -37,7 +37,12 @@
    NIL )-> " )"
 :
   
-  
+: (assoc 1 (assoc 2 (assoc 3 *JP)))
+-> (1 "A" . "string")
+: (cadr (assoc 1 (assoc 2 (assoc 3 *JP))))
+-> "A"
+:
+
 }#
 
   # (prinl "jsonSkipWhiteSpace: +|" Lst "|")
