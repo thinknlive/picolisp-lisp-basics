@@ -36,7 +36,9 @@
       (NIL . "Array") )
    NIL )-> " )"
 :
-  
+
+: (let (Lst (chop "[1,2,[[3,4],[\"A\"],[5,6],7,8],9]")) (setq *JP (car (jsonParseArray Lst))))
+-> ((4 "9" . "number") (3 (5 "8" . "number") (4 "7" . "number") (3 (2 "6" . "number") (1 "5" . "number") (NIL . "Array")) (2 (1 "A" . "string") (NIL . "Array")) (1 (2 "4" . "number") (1 "3" . "number") (NIL . "Array")) (NIL . "Array")) (2 "2" . "number") (1 "1" . "number") (NIL . "Array"))
 : (assoc 1 (assoc 2 (assoc 3 *JP)))
 -> (1 "A" . "string")
 : (cadr (assoc 1 (assoc 2 (assoc 3 *JP))))
