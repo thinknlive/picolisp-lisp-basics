@@ -174,7 +174,7 @@ JP (car (jsonParse Lst))) (pretty *JP))
                   ((= "null" value) (cons value "null"))
                   ((= S (sect S (chop "0123456789+-e"))) (cons value "number"))
                   (T (cons Value "chars")) ) ) ) 
-         (setq Result (cons Value "chars")))
+         (setq Result (cons Value "undefined")))
       # (prinl "jsonParseValue: >>>>|" (sym Value) "|-->|" Result "|---|" Lst "|")
       (list Result Lst) ) )  
   
