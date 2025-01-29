@@ -5,8 +5,9 @@
 # Arrays: ((NIL . "array")(1 "1" "number)...)
 # Objects: ((NIL . "object")("1" 1 "number")...)
 
-# TODO: Add a helper function to extract values and types, something like 'nth' but for json
-# TODO: More compact format? Perhaps using ints or abbreviations for types
+# TODO: More compact data structure? Perhaps using ints or abbreviations for types
+# TODO: Add a helper function to extract values and types, something like 'nth' but for this data structure.
+#       Currently you have to use 'assoc' (see examples)
 
 # Some examples
 
