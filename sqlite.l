@@ -153,7 +153,7 @@
          (for N Cnt
             (link
                (char
-                  (case (randR 1 4)
+                  (case (randR 1 3)
                      (1 (randR 48 57))
                      (2 (randR 65 90))
                      (3 (randR 97 122))
