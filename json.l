@@ -1,16 +1,17 @@
 # JSON parser: Compliant+
 
 # I needed something like this to process json results returned from sqlite
-# I wanted a very consistent structure, easy to read and extract values from; 
+# I wanted a very consistent structure, easy to read and extract values from using picolisp list functions like assoc, nth, car, mapc, etc; 
 #    nested 'assoc' lists and cons pairs fit nicely for this purpose. 
 #    If I need better performance from a given list it is easy to convert to an 'idx' or 'enum'
 # I wanted to be able to handle multiple 'results' or result sets --> 'jsonParse' returns a list of json entities that it parses from the provided list
 
-# Uses 'assoc' lists for objects and arrays
+# The 'assoc' lists for objects and arrays look like this
 #    Arrays: ((NIL . "array")(1 "1" "number")...)
 #    Objects: ((NIL . "object")("1" 1 "number")...)
+# So for any 'list' in a result (assoc NIL Lst) will return the type; "array" or "object"
 
-# All values are represented as strings but the inferred type is included in a cons pair so it is easy to format as needed for your use case 
+# All values are represented as strings but the inferred type is included in a cons pair so it is easy to format, or interpret, as needed for given use case 
 #     string,boolean,null,number,undefined,chars. 
 #     The last 'chars' are unquoted strings that don't look like valid numbers
 
