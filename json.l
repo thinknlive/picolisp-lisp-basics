@@ -1,13 +1,18 @@
-# JSON parser: Compliant (mostly)
+# JSON parser: Compliant+
 
 # I needed something like this to process json results returned from sqlite
-# I wanted a very consistent structure, easy to read and extract values from; nested 'assoc' lists and cons pairs fit nicely for this purpose.
+# I wanted a very consistent structure, easy to read and extract values from; 
+#    nested 'assoc' lists and cons pairs fit nicely for this purpose. If I need 
+#    If I need better performance from a given list it is easy to convert to an 'idx' or 'enum'
+# I wanted to be able to handle multiple 'results' or result sets --> 'jsonParse' returns a list of json entities that it parses from the provided list
 
 # Uses 'assoc' lists for objects and arrays
-# Stores all values as strings but attaches an inferred type in a cons pair; 
-#     string,boolean,null,number,undefined,chars. The last for unquoted strings that don't look like valid numbers
-# Arrays: ((NIL . "array")(1 "1" "number)...)
-# Objects: ((NIL . "object")("1" 1 "number")...)
+#    Arrays: ((NIL . "array")(1 "1" "number)...)
+#    Objects: ((NIL . "object")("1" 1 "number")...)
+
+# All values are represented as strings but the inferred type is included in a cons pair so it is easy to format as needed for your use case 
+#     string,boolean,null,number,undefined,chars. 
+#     The last 'chars' are unquoted strings that don't look like valid numbers
 
 # TODO: More compact data structure? Perhaps using ints or abbreviations for types
 # TODO: Add a helper function to extract values and types, something like 'nth' but for this data structure.
@@ -16,41 +21,45 @@
 # Some examples
 
 #{
-: (let (Lst (chop "\"ABCD\"")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-("ABCD" . "string")-> ("ABCD" . "string")
-: (let (Lst (chop "1234")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-("1234" . "number")-> ("1234" . "number")
-: (let (Lst (chop "true")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-("true" . "boolean")-> ("true" . "boolean")
-: (let (Lst (chop "false")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-("false" . "boolean")-> ("false" . "boolean")
+: (let (Lst (chop "\"ABCD\"")) (setq *JP (jsonParse Lst)) (pretty *JP) (car *JP))
+(("ABCD" . "string"))-> ("ABCD" . "string")
+
+: (let (Lst (chop "1234")) (setq *JP (jsonParse Lst)) (pretty *JP) (caar *JP))
+(("1234" . "number"))-> "1234"
+
+: (let (Lst (chop "true")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (= "true" (car *JP)))
+("true" . "boolean")-> T
+
+: (let (Lst (chop "false")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (= "true" (car *JP)))
+("false" . "boolean")-> NIL
+
 : (let (Lst (chop "null")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ("null" . "null")-> ("null" . "null")
 
-: (let (Lst (chop "")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-(NIL . "undefined")-> (NIL . "undefined")
+: (let (Lst (chop "")) (setq *JP (jsonParse Lst)) (pretty *JP))
+NIL-> NIL
 
 : (let (Lst (chop "[{}]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ((NIL . "array") (1 (NIL . "object")))-> ((NIL . "array") (1 (NIL . "object")))
 
-: (let (Lst (chop "{array:[]}")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-((NIL . "object") ("array" (NIL . "array")))-> ((NIL . "object") ("array" (NIL . "array")))
+: (let (Lst (chop "{array:[]}")) (setq *JP (jsonParse Lst)) (pretty *JP) (car *JP))
+(((NIL . "object") ("array" (NIL . "array"))))-> ((NIL . "object") ("array" (NIL . "array")))
 
-: (let (Lst (chop "[1,2,3,4]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+: (let (Lst (chop "[1,2,3,4]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (assoc NIL *JP))
 ((NIL . "array")
    (1 "1" . "number")
    (2 "2" . "number")
    (3 "3" . "number")
-   (4 "4" . "number") )-> " )"
+   (4 "4" . "number") )-> (NIL . "array")
 
-: (let (Lst (chop "{\"Language\":\"PicoLisp\",Name:\"BuoyantHacker\",\"Level\":3,\"FavBook\":\"Modes of Thought\"}")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+: (let (Lst (chop "{\"Language\":\"PicoLisp\",Name:\"BuoyantHacker\",\"Level\":3,\"FavBook\":\"Modes of Thought\"}")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (assoc NIL *JP))
 ((NIL . "object")
    ("Language" "PicoLisp" . "string")
    ("Name" "BuoyantHacker" . "string")
    ("Level" "3" . "number")
-   ("FavBook" "Modes of Thought" . "string") )-> " )"
+   ("FavBook" "Modes of Thought" . "string") )-> (NIL . "object")
 
-: (let (Lst (chop "[[1,2,[[3,4],[\"A\"],[5,6],7,8],9]]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+: (let (Lst (chop "[[1,2,[[3,4],[\"A\"],[5,6],7,8],9]]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (assoc NIL *JP))
 ((NIL . "array")
    (1
       (NIL . "array")
@@ -63,14 +72,14 @@
          (3 (NIL . "array") (1 "5" . "number") (2 "6" . "number"))
          (4 "7" . "number")
          (5 "8" . "number") )
-      (4 "9" . "number") ) )-> " )"
+      (4 "9" . "number") ) )-> (NIL . "array")
 
-: (let (Lst (chop "[  271,\"c329\",2,\"422497BF15C26E3C\"]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
+: (let (Lst (chop "[  271,\"c329\",2,\"422497BF15C26E3C\"]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (car *JP))
 ((NIL . "array")
    (1 "271" . "number")
    (2 "c329" . "string")
    (3 "2" . "number")
-   (4 "422497BF15C26E3C" . "string") )-> " )"
+   (4 "422497BF15C26E3C" . "string") )-> (NIL . "array")
 
 : (let (Lst (chop "[1,2,[[3,4],{\"A\":\"Object\"},[5,6],7,8],9]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
 ((NIL . "array")
@@ -84,6 +93,7 @@
       (4 "7" . "number")
       (5 "8" . "number") )
    (4 "9" . "number") )-> " )"
+:
 
 : (assoc 2 (assoc 3 *JP))
 -> (2 (NIL . "object") ("A" "Object" . "string"))
@@ -91,30 +101,36 @@
 -> ("A" "Object" . "string")
 : (cadr (assoc "A" (assoc 2 (assoc 3 *JP))))
 -> "Object"
+: (car (assoc "A" (assoc 2 (assoc 3 *JP))))
+-> "A"
 
 }#
 
 # The code
 
-(de jsonParse (Lst)
-  (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
-  # (prinl "jsonParse: ::|" Lst "|")
-  (case (car Lst) 
-    ("{" (jsonParseObject Lst))
-    ("[" (jsonParseArray Lst))
-    (T (jsonParseValue Lst))))
+
+  (use (Data)
+    (setq Lst (jsonSkipWhiteSpace Lst))
+    # (prinl "jsonParse: ::|" Lst "|")
+      (make 
+    (while Lst
+        (case (car Lst) 
+          ("{" (setq Data (jsonParseObject Lst)))
+          ("[" (setq Data (jsonParseArray Lst)))
+          (T (setq Data (jsonParseValue Lst))))
+        #(println "jsonParse: +|" Data "|")
+        (link (car Data))
+        (setq Lst (cadr Data))))))
 
 (de jsonSkipWhiteSpace (Lst)
   # (prinl "jsonSkipWhiteSpace: +|" Lst "|")
   (let (C NIL NotDone T) 
     (while (and NotDone Lst (setq C (car Lst)))
-      (case C
-        ('(`(char 32) `(char 9) `(char 10) `(char 13)) 
-          (++ Lst))
-        (T (setq NotDone NIL))
-        ))
+      (if (sect (list C) '(`(char 32) `(char 9) `(char 10) `(char 13)) )
+          (++ Lst)
+          (setq NotDone NIL))
     # (prinl "jsonSkipWhiteSpace: =|" Lst "|")
-    (cons (length Lst) Lst)))
+    ) Lst))
  
 (de jsonParseValue (Lst)
    (let
@@ -125,8 +141,8 @@
          Value NIL
          Result NIL
          C NIL )
-      (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
-      # (prinl "jsonParseValue: +|" Lst "|")
+      #(prinl "jsonParseValue: +|" Lst "|")
+      (setq Lst (jsonSkipWhiteSpace Lst))
       (while (and NotDone Lst (push 'Fld (++ Lst)))
          # (prinl "jsonParseValue: -|" Lst "|")
          (case (car Fld)
@@ -136,7 +152,7 @@
             ("\\"
                (cond
                   (InQuote
-                     (pop 'Fld)
+                     (++ Fld)
                      (setq C (++ Lst))
                      (case C
                         ("b" (push 'Fld (char 8)))
@@ -156,24 +172,24 @@
                   (T (throw T "jsonParseValue: Not in string")) ) )
             ('("," "]" "}" ":")
                (unless InQuote
-                  (push 'Lst (pop 'Fld))
+                  (push 'Lst (++ Fld))
                   (setq Value (pack (reverse Fld))  Fld NIL  NotDone NIL) ) )
             ('("[" "{")
                (unless InQuote
-                  (push 'Lst (pop 'Fld))
-                  (if Fld (throw T "jsonParsValue: unexpected group open"))
+                  (push 'Lst (++ Fld))
+                  (if Fld (throw T "jsonParseValue: unexpected group open"))
                   (setq Value (pack (reverse Fld))  Fld NIL  NotDone NIL) ) )
             ("\""
                (cond
                   (InQuote
-                     (pop 'Fld)
+                     (++ Fld)
                      (setq
                         Value (pack (reverse Fld))
                         Fld NIL
                         InQuote NIL
                         NotDone NIL
                         Quoted T ) )
-                  (T (pop 'Fld)
+                  (T (++ Fld)
                      (when Fld (throw T "jsonParseValue: unexpected quote"))
                      (setq InQuote T) ) ) ) ) )
       (if Fld (setq Value (pack (reverse Fld))))
@@ -194,11 +210,11 @@
 
 (de jsonParseArray (Lst)
   (let (Array (list (cons NIL . "array")) Ndx 0 Value NIL NotDone T)
-    # (prinl "jsonParseArray: +|" Lst "|")
+    #(prinl "jsonParseArray: +|" Lst "|")
     (ifn (and Lst (= "[" (car Lst)))
       (throw T "jsonParseArray: Expected '['"))
-    (pop 'Lst)
-    (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+    (++ Lst)
+    (setq Lst (jsonSkipWhiteSpace Lst))
     (loop
       (NIL Lst)
       (NIL NotDone)
@@ -209,7 +225,7 @@
           # (prinl "jsonParseArray: RECURSE |" Lst "|")
           (let Result (jsonParseArray Lst) (setq Value (car Result) Lst (cadr Result)))
           (push 'Array (cons (inc 'Ndx) Value))
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           # (prinl "jsonParseArray: ====|" Ndx "|-->|" (sym Value) "|---|" Lst "|")
           (case (car Lst)
             ("," (++ Lst))
@@ -220,7 +236,7 @@
           # (prinl "jsonParseArray: RECURSE |" Lst "|")
           (let Result (jsonParseObject Lst) (setq Value (car Result) Lst (cadr Result)))
           (push 'Array (cons (inc 'Ndx) Value))
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           # (prinl "jsonParseArray: ____|" Ndx "|-->|" (sym Value) "|---|" Lst "|")
           (case (car Lst)
             ("," (++ Lst))
@@ -231,7 +247,7 @@
         ("]"  (setq NotDone NIL))
          (T
             (let Result (jsonParseValue Lst) (setq Value (car Result) Lst (cadr Result)))
-            (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+            (setq Lst (jsonSkipWhiteSpace Lst))
             # (prinl "jsonParseArray: @|" Ndx "|-->|" (sym Value) "|---|" Lst "|")
             (case (car Lst)
               ("," 
@@ -249,30 +265,31 @@
     # (prinl "jsonParseArray: =|" Lst "|")
     (ifn (and Lst (= "]" (car Lst)))
       (throw T "jsonParseArray: expected ']'"))
-    (pop 'Lst)
+    (++ Lst)
+    (setq Lst (jsonSkipWhiteSpace Lst))
     (list (reverse Array) Lst))
 )
 
 (de jsonParseObject (Lst)
   (let (Object (list (cons NIL . "object")) Name NIL Value NIL NotDone T)
-    # (prinl "jsonParseObject: +|" Lst "|")
+    #(prinl "jsonParseObject: +|" Lst "|")
     (ifn (and Lst (= "{" (car Lst)))
       (throw T "jsonParseObject: Expected '{'"))
-    (pop 'Lst)
-    (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+    (++ Lst)
+    (setq Lst (jsonSkipWhiteSpace Lst))
     (loop
       (NIL Lst)
       (NIL NotDone)
       (T (and Lst (= "}" (car Lst))))
       # (prinl "jsonParseObject: >>>|" Ndx "|--|" Lst "|")
-      (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+      (setq Lst (jsonSkipWhiteSpace Lst))
       (case (car Lst)
         ("["
           (ifn Name (throw T "jsonParseObject: unexpected '['"))
           # (prinl "jsonParseObject: RECURSE |" Lst "|")
           (let Result (jsonParseArray Lst) (setq Value (car Result) Lst (cadr Result)))
           (push 'Object (cons Name Value))
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           (case (car Lst)
             ("," (++ Lst))
             ("}"  (setq NotDone NIL))
@@ -284,7 +301,7 @@
           # (prinl "jsonParseObject: RECURSE |" Lst "|")
           (let Result (jsonParseObject Lst) (setq Value (car Result) Lst (cadr Result)))
           (push 'Object (cons Name Value))
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           (case (car Lst)
             ("," (++ Lst))
             ("}"  (setq NotDone NIL))
@@ -294,14 +311,14 @@
         (":"
           (ifn Name (throw T "jsonParseObject: unexpected ':'"))
           (++ Lst)
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           (case (car Lst)
           ('("[" "{") T)
           (T 
             (let Result (jsonParseValue Lst) (setq Value (car Result) Lst (cadr Result)))
             (push 'Object (cons Name Value))
             (setq Name NIL)
-            (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+            (setq Lst (jsonSkipWhiteSpace Lst))
             (case (car Lst)
               ("," (++ Lst))
               ("}"  (setq NotDone NIL))
@@ -310,7 +327,7 @@
         )
         (T 
           (let Result (jsonParseValue Lst) (setq Value (car Result) Lst (cadr Result)))
-          (setq Lst (cdr (jsonSkipWhiteSpace Lst)))
+          (setq Lst (jsonSkipWhiteSpace Lst))
           # (prinl "jsonParseObject: @@|" Ndx "|-->|" (sym Value) "|---|" Lst "|")
           (case (car Lst)
             (":"
@@ -325,6 +342,7 @@
   # (prinl "jsonParseObject: =|" Lst "|")
   (ifn (and Lst (= "}" (car Lst)))
      (throw T "jsonParseObject: expected '}'"))
-  (pop 'Lst)
+  (++ Lst)
+  (setq Lst (jsonSkipWhiteSpace Lst))
   (list (reverse Object) Lst))
 )
