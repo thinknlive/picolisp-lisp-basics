@@ -107,7 +107,7 @@ NIL-> NIL
 
 }#
 
-# A complete example using adapting the code from sqlite.1
+# A more complex example using adapting the code from sqlite.1
 # Insert 100,000 rows then query
 # Returning 1 result set of rows with no name collision
 #   and another result set of only collision rows
