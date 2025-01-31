@@ -7,7 +7,7 @@
 # I wanted to be able to handle multiple 'results' or result sets --> 'jsonParse' returns a list of json entities that it parses from the provided list
 
 # Uses 'assoc' lists for objects and arrays
-#    Arrays: ((NIL . "array")(1 "1" "number)...)
+#    Arrays: ((NIL . "array")(1 "1" "number")...)
 #    Objects: ((NIL . "object")("1" 1 "number")...)
 
 # All values are represented as strings but the inferred type is included in a cons pair so it is easy to format as needed for your use case 
