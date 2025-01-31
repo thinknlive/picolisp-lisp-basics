@@ -2,7 +2,7 @@
 
 # I needed something like this to process json results returned from sqlite
 # I wanted a very consistent structure, easy to read and extract values from; 
-#    nested 'assoc' lists and cons pairs fit nicely for this purpose. If I need 
+#    nested 'assoc' lists and cons pairs fit nicely for this purpose. 
 #    If I need better performance from a given list it is easy to convert to an 'idx' or 'enum'
 # I wanted to be able to handle multiple 'results' or result sets --> 'jsonParse' returns a list of json entities that it parses from the provided list
 
