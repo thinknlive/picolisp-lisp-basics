@@ -106,6 +106,155 @@ NIL-> NIL
 
 }#
 
+# A complete example using adapting the code from sqlite.1
+# Insert 100,000 rows then query
+# Returning 1 result set of rows with no name collision
+#   and another result set of only collision rows
+
+#{
+
+: (gc 200 200)
+-> 200
+: (bench (let (Lst NIL Cnt 100000 Data NIL Sql '(
+  ".mode quote"
+  "drop table if exists test;"
+  "create table test(id integer primary key, name text, cnt int default 1);"
+  "create unique index uix_test_name on test(name);"
+  ))
+  (setq Sql
+    (append
+      Sql
+      '("begin transaction;")
+      (make (do Cnt (link (pack
+        "insert into test (name) values (" (sqlQuote (makeRndName 5)) ") on conflict (name) do update set cnt = cnt + 1;"))))
+
+
+      '("commit;")
+      '(".mode json")))
+    (msg "Insert: " Cnt)
+    (bench (runExe Sql sqlite3 "testdb.sqlite"))
+
+    (msg "Query: ")
+    (setq Sql (append
+      '(".mode json")
+      '("select id, name, cnt, (hex(randomblob(4))) as rnd from test where cnt = 1;")
+      '("select id, name, cnt, (hex(randomblob(4))) as rnd from test where cnt > 1;")
+      ))
+    (bench (setq Data (runExe Sql sqlite3 "testdb.sqlite")))
+    (setq Lst (chop (car (pack (car Data)))))
+    (msg "Parse: ")
+    (bench (setq Data (jsonParse Lst)))
+    (out "sql-results.txt" (pretty Data))
+    (msg "Total Time: ")
+    T
+))
+
+"Insert: "100000
+0.780 sec
+"Query: "
+0.142 sec
+"Parse: "
+1.473 sec
+"Total Time: "
+3.594 sec
+-> T
+: (call "ls" "-lh" "sql-results.txt")
+-rw-r--r-- 1 llawrence llawrence 18M Jan 30 21:55 sql-results.txt
+-> T
+: (call "head" "-n 40" "sql-results.txt")
+(((NIL . "array")
+      (1
+         (NIL . "object")
+         ("id" "1" . "number")
+         ("name" "UpKS3" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "9CF24829" . "string") )
+      (2
+         (NIL . "object")
+         ("id" "2" . "number")
+         ("name" "9nT9R" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "A0BC5A55" . "string") )
+      (3
+         (NIL . "object")
+         ("id" "3" . "number")
+         ("name" "GuLam" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "63F18061" . "string") )
+      (4
+         (NIL . "object")
+         ("id" "4" . "number")
+         ("name" "uhTe0" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "87225178" . "string") )
+      (5
+         (NIL . "object")
+         ("id" "5" . "number")
+         ("name" "axAlQ" . "string")
+         ("cnt" "1" . "number")
+...
+: (call "tail" "-n 200" "sql-results.txt")
+...
+        ("rnd" "DC98B908" . "string") )
+      (99955
+         (NIL . "object")
+         ("id" "99977" . "number")
+         ("name" "SKrqn" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "934B92FF" . "string") )
+      (99956
+         (NIL . "object")
+         ("id" "99978" . "number")
+         ("name" "28801" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "890BD1FA" . "string") ) )
+   ((NIL . "array")
+      (1
+         (NIL . "object")
+         ("id" "718" . "number")
+         ("name" "saKet" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "8D271039" . "string") )
+      (2
+         (NIL . "object")
+         ("id" "3414" . "number")
+         ("name" "V298P" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "5ADCB016" . "string") )
+      (3
+         (NIL . "object")
+         ("id" "8575" . "number")
+         ("name" "x50Xr" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "BF80E6F2" . "string") )
+      (4
+         (NIL . "object")
+         ("id" "9361" . "number")
+         ("name" "LAb00" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "0E938FBD" . "string") )
+...
+      (20
+         (NIL . "object")
+         ("id" "64554" . "number")
+         ("name" "7bwZ8" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "1F0989AF" . "string") )
+      (21
+         (NIL . "object")
+         ("id" "78713" . "number")
+         ("name" "4G9f8" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "02BBBCBC" . "string") )
+      (22
+         (NIL . "object")
+         ("id" "96146" . "number")
+         ("name" "AE809" . "string")
+         ("cnt" "2" . "number")
+         ("rnd" "67FBD529" . "string") ) ) )-> T
+}#
+
+
 # The code
 
 
