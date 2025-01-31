@@ -128,10 +128,8 @@ NIL-> NIL
       '("begin transaction;")
       (make (do Cnt (link (pack
         "insert into test (name) values (" (sqlQuote (makeRndName 5)) ") on conflict (name) do update set cnt = cnt + 1;"))))
-
-
-      '("commit;")
-      '(".mode json")))
+      '("commit;")))
+    
     (msg "Insert: " Cnt)
     (bench (runExe Sql sqlite3 "testdb.sqlite"))
 
