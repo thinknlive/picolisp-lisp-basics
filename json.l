@@ -40,11 +40,11 @@
 : (let (Lst (chop "")) (setq *JP (jsonParse Lst)) (pretty *JP))
 NIL-> NIL
 
-: (let (Lst (chop "[{}]")) (setq *JP (car (jsonParse Lst))) (pretty *JP))
-((NIL . "array") (1 (NIL . "object")))-> ((NIL . "array") (1 (NIL . "object")))
+: (let (Lst (chop "[{}]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) T)
+((NIL . "array") (1 ((NIL . "object"))))-> T
 
-: (let (Lst (chop "{array:[]}")) (setq *JP (jsonParse Lst)) (pretty *JP) (car *JP))
-(((NIL . "object") ("array" (NIL . "array"))))-> ((NIL . "object") ("array" (NIL . "array")))
+: (let (Lst (chop "{array:[]}")) (setq *JP (jsonParse Lst)) (pretty (car *JP)) T)
+((NIL . "object") ("array" ((NIL . "array"))))-> T
 
 : (let (Lst (chop "[1,2,3,4]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (assoc NIL *JP))
 ((NIL . "array")
@@ -63,17 +63,17 @@ NIL-> NIL
 : (let (Lst (chop "[[1,2,[[3,4],[\"A\"],[5,6],7,8],9]]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (assoc NIL *JP))
 ((NIL . "array")
    (1
-      (NIL . "array")
-      (1 "1" . "number")
-      (2 "2" . "number")
-      (3
-         (NIL . "array")
-         (1 (NIL . "array") (1 "3" . "number") (2 "4" . "number"))
-         (2 (NIL . "array") (1 "A" . "string"))
-         (3 (NIL . "array") (1 "5" . "number") (2 "6" . "number"))
-         (4 "7" . "number")
-         (5 "8" . "number") )
-      (4 "9" . "number") ) )-> (NIL . "array")
+      ((NIL . "array")
+         (1 "1" . "number")
+         (2 "2" . "number")
+         (3
+            ((NIL . "array")
+               (1 ((NIL . "array") (1 "3" . "number") (2 "4" . "number")))
+               (2 ((NIL . "array") (1 "A" . "string")))
+               (3 ((NIL . "array") (1 "5" . "number") (2 "6" . "number")))
+               (4 "7" . "number")
+               (5 "8" . "number") ) )
+         (4 "9" . "number") ) ) )-> (NIL . "array")
 
 : (let (Lst (chop "[  271,\"c329\",2,\"422497BF15C26E3C\"]")) (setq *JP (car (jsonParse Lst))) (pretty *JP) (car *JP))
 ((NIL . "array")
@@ -87,24 +87,24 @@ NIL-> NIL
    (1 "1" . "number")
    (2 "2" . "number")
    (3
-      (NIL . "array")
-      (1 (NIL . "array") (1 "3" . "number") (2 "4" . "number"))
-      (2 (NIL . "object") ("A" "Object" . "string"))
-      (3 (NIL . "array") (1 "5" . "number") (2 "6" . "number"))
-      (4 "7" . "number")
-      (5 "8" . "number") )
+      ((NIL . "array")
+         (1 ((NIL . "array") (1 "3" . "number") (2 "4" . "number")))
+         (2 ((NIL . "object") ("A" "Object" . "string")))
+         (3 ((NIL . "array") (1 "5" . "number") (2 "6" . "number")))
+         (4 "7" . "number")
+         (5 "8" . "number") ) )
    (4 "9" . "number") )-> " )"
-:
 
-: (assoc 2 (assoc 3 *JP))
--> (2 (NIL . "object") ("A" "Object" . "string"))
-: (assoc "A" (assoc 2 (assoc 3 *JP)))
+: (assoc 2 (cadr (assoc 3 *JP)))
+-> (2 ((NIL . "object") ("A" "Object" . "string")))
+
+: (assoc "A" (cadr (assoc 2 (cadr (assoc 3 *JP)))))
 -> ("A" "Object" . "string")
-: (cadr (assoc "A" (assoc 2 (assoc 3 *JP))))
--> "Object"
-: (car (assoc "A" (assoc 2 (assoc 3 *JP))))
--> "A"
 
+: (cadr (assoc "A" (cadr (assoc 2 (cadr (assoc 3 *JP))))))
+-> "Object"
+: (car (assoc "A" (cadr (assoc 2 (cadr (assoc 3 *JP))))))
+-> "A"
 }#
 
 # A more complex example using adapting the code from sqlite.1
@@ -149,97 +149,62 @@ NIL-> NIL
     (msg "Total Time: ")
     T
 ))
-
 "Insert: "100000
-0.780 sec
+0.936 sec
 "Query: "
-0.142 sec
+0.578 sec
 "Parse: "
-1.473 sec
+1.420 sec
 "Total Time: "
-3.594 sec
+3.917 sec
 -> T
 : (call "ls" "-lh" "sql-results.txt")
--rw-r--r-- 1 llawrence llawrence 18M Jan 30 21:55 sql-results.txt
+-rw-r--r-- 1 llawrence llawrence 19M Jan 31 01:20 sql-results.txt
 -> T
 : (call "head" "-n 40" "sql-results.txt")
 (((NIL . "array")
       (1
-         (NIL . "object")
-         ("id" "1" . "number")
-         ("name" "UpKS3" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "9CF24829" . "string") )
+         ((NIL . "object")
+            ("id" "1" . "number")
+            ("name" "H86dJ" . "string")
+            ("cnt" "1" . "number")
+            ("rnd" "9D52DBB4" . "string") ) )
       (2
-         (NIL . "object")
-         ("id" "2" . "number")
-         ("name" "9nT9R" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "A0BC5A55" . "string") )
-      (3
-         (NIL . "object")
-         ("id" "3" . "number")
-         ("name" "GuLam" . "string")
+         ((NIL . "object")
+            ("id" "2" . "number")
+            ("name" "vAdzs" . "string")
+            ("cnt" "1" . "number")
 ...
-: (call "tail" "-n 200" "sql-results.txt")
+:  (call "tail" "-n 200" "sql-results.txt")
 ...
-        ("rnd" "DC98B908" . "string") )
-      (99955
-         (NIL . "object")
-         ("id" "99977" . "number")
-         ("name" "SKrqn" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "934B92FF" . "string") )
-      (99956
-         (NIL . "object")
-         ("id" "99978" . "number")
-         ("name" "28801" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "890BD1FA" . "string") ) )
+            ("rnd" "8F0152D5" . "string") ) )
+      (99959
+         ((NIL . "object")
+            ("id" "99979" . "number")
+            ("name" "3a53M" . "string")
+            ("cnt" "1" . "number")
+            ("rnd" "6C85D343" . "string") ) )
+      (99960
+         ((NIL . "object")
+            ("id" "99980" . "number")
+            ("name" "f4sXc" . "string")
+            ("cnt" "1" . "number")
+            ("rnd" "3D5F4383" . "string") ) ) )
    ((NIL . "array")
       (1
-         (NIL . "object")
-         ("id" "718" . "number")
-         ("name" "saKet" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "8D271039" . "string") )
-      (2
-         (NIL . "object")
-         ("id" "3414" . "number")
-         ("name" "V298P" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "5ADCB016" . "string") )
-      (3
-         (NIL . "object")
-         ("id" "8575" . "number")
-         ("name" "x50Xr" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "BF80E6F2" . "string") )
-      (4
-         (NIL . "object")
-         ("id" "9361" . "number")
-         ("name" "LAb00" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "0E938FBD" . "string") )
+         ((NIL . "object")
+            ("id" "1518" . "number")
+            ("name" "0I2f6" . "string")
+            ("cnt" "2" . "number")
 ...
+            ("rnd" "D1311EB2" . "string") ) )
       (20
-         (NIL . "object")
-         ("id" "64554" . "number")
-         ("name" "7bwZ8" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "1F0989AF" . "string") )
-      (21
-         (NIL . "object")
-         ("id" "78713" . "number")
-         ("name" "4G9f8" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "02BBBCBC" . "string") )
-      (22
-         (NIL . "object")
-         ("id" "96146" . "number")
-         ("name" "AE809" . "string")
-         ("cnt" "2" . "number")
-         ("rnd" "67FBD529" . "string") ) ) )-> T
+         ((NIL . "object")
+            ("id" "80866" . "number")
+            ("name" "V897o" . "string")
+            ("cnt" "2" . "number")
+            ("rnd" "38631516" . "string") ) ) ) )-> T
+
 }#
 
 
