@@ -205,6 +205,54 @@ NIL-> NIL
             ("cnt" "2" . "number")
             ("rnd" "38631516" . "string") ) ) ) )-> T
 
+
+# Working with the results
+: (in "sql-results.txt" (setq *RS1 (read)) T)
+-> T
+: (println (length (car *RS1)) (length (cadr *RS1)))
+99961 21
+-> 21
+:
+: (bench (let (L (car *RS1) Cnt (length L)) (do 1000 (assoc (rand 1 Cnt) L))) T)
+0.681 sec
+-> T
+: (let (L (car *RS1) Cnt (length L)) (do 10 (println (assoc (rand 1 Cnt) L))) T)
+(87543 ((NIL . "object") ("id" "87563" . "number") ("name" "V9eKt" . "string") ("cnt" "1" . "number") ("rnd" "F2C04074" . "string")))
+(13608 ((NIL . "object") ("id" "13613" . "number") ("name" "tNYIC" . "string") ("cnt" "1" . "number") ("rnd" "C68497BB" . "string")))
+(86937 ((NIL . "object") ("id" "86957" . "number") ("name" "2UNob" . "string") ("cnt" "1" . "number") ("rnd" "C4EA01F7" . "string")))
+(3144 ((NIL . "object") ("id" "3145" . "number") ("name" "g583A" . "string") ("cnt" "1" . "number") ("rnd" "ED0D0999" . "string")))
+(6040 ((NIL . "object") ("id" "6044" . "number") ("name" "03rAi" . "string") ("cnt" "1" . "number") ("rnd" "4DC963FA" . "string")))
+(41640 ((NIL . "object") ("id" "41652" . "number") ("name" "OKOH5" . "string") ("cnt" "1" . "number") ("rnd" "BF085CD6" . "string")))
+(44137 ((NIL . "object") ("id" "44150" . "number") ("name" "0S3Af" . "string") ("cnt" "1" . "number") ("rnd" "65C3937D" . "string")))
+(1954 ((NIL . "object") ("id" "1955" . "number") ("name" "j1Ttr" . "string") ("cnt" "1" . "number") ("rnd" "C0A05A20" . "string")))
+(17419 ((NIL . "object") ("id" "17425" . "number") ("name" "KdMMh" . "string") ("cnt" "1" . "number") ("rnd" "3BFE2CDE" . "string")))
+(93464 ((NIL . "object") ("id" "93484" . "number") ("name" "CIbgB" . "string") ("cnt" "1" . "number") ("rnd" "7ABF0C07" . "string")))
+-> T
+:
+: (use (A) (bench (setq A (filter '((X) (if (= "OKOH5" (cadr (assoc "name" (cadr X)))) X)) (car *RS1)))) (pretty A) T)
+0.019 sec
+((41640
+      ((NIL . "object")
+         ("id" "41652" . "number")
+         ("name" "OKOH5" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "BF085CD6" . "string") ) ) )-> T
+
+: (use (A) (bench (setq A (filter '((X) (if (= "4DC963FA" (cadr (assoc "rnd" (cadr X)))) X)) (car *RS1)))) (pretty A) T)
+0.016 sec
+((6040
+      ((NIL . "object")
+         ("id" "6044" . "number")
+         ("name" "03rAi" . "string")
+         ("cnt" "1" . "number")
+         ("rnd" "4DC963FA" . "string") ) ) )-> T
+: (use (A) 
+      (bench (setq A (filter '((X) (if (= "4DC963FA" (cadr (assoc "rnd" (cadr X)))) X)) (car *RS1)))) 
+         (prin (caar A)) (mapc '((X)
+         (if (car X) (prin " " (cadr X)))) (cadar A)) T)
+0.017 sec
+6040 6044 03rAi 1 4DC963FA-> T
+
 }#
 
 
