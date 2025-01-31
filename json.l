@@ -180,19 +180,6 @@ NIL-> NIL
          (NIL . "object")
          ("id" "3" . "number")
          ("name" "GuLam" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "63F18061" . "string") )
-      (4
-         (NIL . "object")
-         ("id" "4" . "number")
-         ("name" "uhTe0" . "string")
-         ("cnt" "1" . "number")
-         ("rnd" "87225178" . "string") )
-      (5
-         (NIL . "object")
-         ("id" "5" . "number")
-         ("name" "axAlQ" . "string")
-         ("cnt" "1" . "number")
 ...
 : (call "tail" "-n 200" "sql-results.txt")
 ...
