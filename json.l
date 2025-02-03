@@ -279,14 +279,9 @@ NIL-> NIL
           (setq Lst (cadr Data))))))
 
 (de jsonSkipWhiteSpace (Lst)
-  # (prinl "jsonSkipWhiteSpace: +|" Lst "|")
-  (let (C NIL NotDone T) 
-    (while (and NotDone Lst (setq C (car Lst)))
-      (if (sect (list C) '(`(char 32) `(char 9) `(char 10) `(char 13)) )
-          (++ Lst)
-          (setq NotDone NIL))
-    # (prinl "jsonSkipWhiteSpace: =|" Lst "|")
-    ) Lst))
+    (while (member (car Lst) '(" " "^I" "^J" "^M"))
+       (++ Lst) )
+    Lst )
  
 (de jsonParseValue (Lst)
    (let
