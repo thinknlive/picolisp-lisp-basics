@@ -20,6 +20,32 @@
       NIL
       (unless State (setq State @Seed))
       (setq State (% (* State 279470273) 4294967291)) ) )
+
+Or, (better performance by eliminating the 'unless' guard
+
+(de randomLehmer (Seed)
+    (let
+       (Fn
+          (curry
+             ((State . 1))
+             NIL
+             (setq State (% (* State 279470273) 4294967291)) ) )
+       (set
+          (nth Fn 2 2 2)
+          (cons
+             'State
+             (if Seed Seed (inc (abs (rand)))) ) )
+       Fn ) )
+
+Or, simpler code using 'fill.  (suggestion from abu)
+
+(de randomLehmer (Seed)
+      (let @Seed (or Seed (inc (abs (rand))))
+         (fill
+            '(()
+               (job '((State . @Seed))
+                  (setq State (% (* State 279470273) 4294967291)) ) ) ) ) )
+
       
 (setq *RndFn (randomLehmer (time)))
 (de randR (Lo Hi) (+ Lo (% (*RndFn) (+ (- Hi Lo) 1))))
