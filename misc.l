@@ -157,4 +157,34 @@ Example:
 : (ljl~passwdCurry "0123456789ABCDEF" 73)
 -> "8E42C10B9D36F75A"
 :
-{#
+}#
+
+# ShiftN and UnshiftN...
+# Keep track of the shifts made and return the stack so we can 'unshift'
+
+(de passwdCurry (Dict Shuffle)
+   (let
+      (L (chop Dict)
+         Hasher (fnvHasher 32)
+         RndFn
+         (randomLehmer
+            (Hasher (make (for C *L (link (char C))))) )
+         Hist NIL
+         Val NIL )
+      (default Shuffle (length L))
+      (do Shuffle
+         (setq Val (% (RndFn) (length L)))
+         (push 'Hist Val)
+         (setq L (shiftCar L Val)) )
+      (cons (pack L) Hist) ) )
+
+: (setq Curry (passwdCurry "abcdef0123456789ABCDEF" 37) 
+         Pwd (chop (car Curry)) 
+         Hst (cdr Curry)) 
+   (prinl (pack Pwd)) 
+   (prinl (pack (for C Hst (setq Pwd (unshiftCar Pwd C)))))
+
+d0Cb7c3A8D6a21fE9e5BF4
+abcdef0123456789ABCDEF
+-> "abcdef0123456789ABCDEF"
+:
