@@ -14,6 +14,14 @@
          X )
       L ) )
 
+# undo it
+(de unshiftCar (X N)
+   (if (or (le0 N) (atom X))
+      X
+      (let (Lhs (head N X)  Rhs (nth X (inc N)))
+         (consFlatten (cons (car Rhs) Lhs (cdr Rhs))) ) ) )
+
+
 # flatten a list structure (remove all nesting)
 # (consFlatten (cons '(A B C) '(D E F (G H I) J K)) )
 # -> (A B C D E F G H I J K)
@@ -78,12 +86,12 @@
 # Pseudo random number generators
 # (let (rndFn (randomLehmer 9999)) (do 20 (println (rndFn))))
 
-(de randomLehmer (@Seed)
-   (curry
-      (@Seed (State))
-      NIL
-      (unless State (setq State @Seed))
-      (setq State (% (* State 279470273) 4294967291)) ) )
+(de randomLehmer (Seed)
+      (let @Seed (or Seed (inc (abs (rand))))
+         (fill
+            '(()
+               (job '((State . @Seed))
+                  (setq State (% (* State 279470273) 4294967291)) ) ) ) ) )
 
 (de randomParkMiller (@Seed)
    (curry
