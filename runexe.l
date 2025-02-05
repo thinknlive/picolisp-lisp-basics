@@ -67,6 +67,9 @@ Or, simpler code using 'fill.  (suggestion from abu)
 : (when (info "testdb.sqlite") (call "rm" "testdb.sqlite"))
 -> T
 
+: (gc 200 200)
+-> 200
+
 # Insert 1,000,000 records with names of length 7
 
 : (bench (let (Sql '(
@@ -81,8 +84,8 @@ Or, simpler code using 'fill.  (suggestion from abu)
       '("commit;")
       '("select count(*) from test;")))
   (bench (runExe Sql sqlite3 "-bail" "testdb.sqlite"))))
-9.205 sec
-17.357 sec
+2.216 sec
+4.369 sec
 -> (("1000000") NIL)
 
 # Insert another 1,000,000 records with names of length 7
@@ -97,8 +100,8 @@ Or, simpler code using 'fill.  (suggestion from abu)
       '("commit;")
       '("select count(*) from test;")))
   (bench (runExe Sql sqlite3 "-bail" "testdb.sqlite"))))
-9.668 sec
-17.395 sec
+2.166 sec
+4.537 sec
 -> (("2000000") NIL)
 
 # Insert 100,000 records with names of length 5. Track and report collisions
@@ -119,14 +122,14 @@ Or, simpler code using 'fill.  (suggestion from abu)
       '("select 'Collision Count: '||count(*) from test where cnt > 1;")
       '("select 'Record Count: ' || count(*) from test;")))
   (bench (runExe Sql sqlite3 "testdb.sqlite"))))
-4.113 sec
-4.792 sec
--> (("603,'49p0f',2" "5234,'59q18',2" "9197,'RD129',2" "21510,'2ZJYw',2" 
-      "22670,'mW697',2" "25518,'4397H',2" "25916,'2yL1F',2" "26721,'S5w7k',2" 
-      "42965,'u68r2',2" "43144,'2U29u',2" "54592,'57T91',2" "59298,'24956',2" 
-      "71996,'3T706',2" "73238,'5Kv8A',2" "91299,'O6z7o',2" 
-      "'Collision Count: 15'" 
-      "'Record Count: 99985'") NIL)
+1.046 sec
+1.244 sec
+-> (("446,'21fYs',2" "2308,'G4z06',2" "11141,'0P9r9',2" "14757,'L3i68',2" "15012,'56E50',2" "16398,'Il5IX',2" 
+     "18635,'2h74k',2" "21103,'4172Q',2" "24928,'76wj5',2" "31774,'1SbTK',2" "32120,'898E5',2" "35358,'471G7',2" 
+     "36303,'c3evW',2" "37695,'14E1u',2" "41323,'kv69b',2" "44134,'5L8Nf',2" "54609,'G934m',2" "55687,'L43Lx',2" 
+     "85253,'62135',2" 
+     "'Collision Count: 19'" 
+     "'Record Count: 99981'") NIL)
 
 # Insert 100,000 records with names of length 7. Track and report collisions
 
@@ -146,8 +149,8 @@ Or, simpler code using 'fill.  (suggestion from abu)
       '("select 'Collision Count: '||count(*) from test where cnt > 1;")
       '("select 'Record Count: ' || count(*) from test;")))
   (bench (runExe Sql sqlite3 "testdb.sqlite"))))
-2.671 sec
-3.406 sec
+0.777 sec
+1.221 sec
 -> (("'Collision Count: 0'" "'Record Count: 100000'") NIL)
 
 # Generate and show an error
