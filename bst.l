@@ -3,7 +3,7 @@
 
 : (mapc pp '(bstMake bstSearch bstInOrder bstPreOrder bstPostOrder bstLevelOrder))
 
-# Make a binary search tree. L is an ordered list
+# Make a binary search tree. Assumes L is an ordered list
 (de bstMake (L)
    (let
       (BST
