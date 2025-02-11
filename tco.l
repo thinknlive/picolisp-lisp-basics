@@ -3,9 +3,9 @@
 25.2.8
 -> (25 2 8)
 
-# The functions below have recursive and tail call versions
-# The code in each function is identical except for the use of 'recur','recurse' and 'tco','tc'
-# The recursive versions run in stack issues fairly quickly and are generally quite a bit slower for large lists.
+# The functions have recursive and tail call versions
+# The code in each function pair is identical except for the use of 'recur','recurse' and 'tco','tc'
+# The recursive versions runs into stack issues fairly quickly and are generally quite a bit slower for large lists.
 
 # ---------------------------------------------------------------------------------------------
 # Destructive swap
