@@ -2,8 +2,22 @@
 : (version)
 25.2.8
 -> (25 2 8)
+: (help 'tco)
+========================================
+(tco lst . prg) -> any
+(tc ['any ..])
+    Tail call optimization. tco implements a loop which is restarted whenever
+    tc is called during the execution of prg. This is faster and uses much less
+    stack space than a recursive function call. lst is a list of parameter
+    symbols. tc must be the very last function called in a function body. See
+    also recur and catch.
 
-# The functions have recursive and tail call versions
+-> tco
+
+
+# ---------------------------------------------------------------------------------------------
+# The functions each have a recursive and tail call version
+
 # The code in each function pair is identical except for the use of 'recur','recurse' and 'tco','tc'
 # The recursive versions runs into stack issues fairly quickly and are generally quite a bit slower for large lists.
 
