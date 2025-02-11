@@ -8,7 +8,7 @@
 # The recursive versions runs into stack issues fairly quickly and are generally quite a bit slower for large lists.
 
 # ---------------------------------------------------------------------------------------------
-# Destructive swap
+# NOTE: Destructive swap
 # Given a cons pair and a list, swap the elements at the positions specified by the cons pair
 
 (de swappRecur (P L)
@@ -150,6 +150,14 @@
 
 : (gc 200 200)
 -> 200
+
+# Move the element in the first position to the fifth position in the list
+: (mftTco (1 2 3 4 5 6 7 8 9) 5)
+-> (2 3 4 5 1 6 7 8 9)
+# Move the element in the fifth position to the first position in the list
+: (mtfTco (mftTco (1 2 3 4 5 6 7 8 9) 5) 5)
+-> (1 2 3 4 5 6 7 8 9)
+:
 
 : (let (Cnt (** 2 10) L (range 1 Cnt) Len (length L) Rnd (rand 1 Len)) (bench (for N 1 (setq L (mtfTco L Rnd)))) (println Rnd " : " (head 17 L) " : " (head 3 (nth L (dec Rnd))))) T
 0.000 sec
