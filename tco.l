@@ -73,7 +73,7 @@
 2.777 sec
 -> T
 
-# Reverse a List 
+# Reverse a List by swapping elements at opposite ends, working towards the center
 : (bench (let (Func swappTco Cnt (** 2 10) Lst (range 1 Cnt) Len (length Lst) LL 1 RR Len) 
     (while (> RR LL) (Func (cons LL RR) Lst) (inc 'LL) (dec 'RR)) 
     (println LL RR) 
