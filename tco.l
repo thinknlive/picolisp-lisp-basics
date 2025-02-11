@@ -183,3 +183,16 @@
 120 : (73 30 35 60 20 98 191 84 132 80 169 137 204 58 43 2 47) : (176 109 11)
 -> T
 :
+
+: (let (Cnt (** 2 16) L (range 1 Cnt) Len (length L) Rnd NIL) (bench (for N Cnt (setq Rnd (rand 1 Len) L (mtfTco L Rnd)))) (println Rnd " : " (head 17 L) " : " (head 3 (nth L (dec R
+nd))))) T
+238.254 sec
+28742 " : " (42702 1570 21161 31691 45631 35656 24178 65366 36808 33025 59108 55283 4788 1808 11877 10732 27018) " : " (8276 4513 3903)
+-> T
+
+: (let (Cnt (** 2 16) L (range 1 Cnt) Len (length L) Rnd NIL) (bench (for N Cnt (setq Rnd (rand 1 Len) L (mftTco L Rnd)))) (println Rnd " : " (head 17 L) " : " (head 3 (nth L (dec R
+nd))))) T
+212.558 sec
+7524 " : " (40159 22317 41327 17860 41328 27087 4470 39032 41329 37544 10145 41330 41331 9719 3626 4082 41332) " : " (44129 41326 41043)
+-> T
+:
