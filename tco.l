@@ -16,7 +16,7 @@
 
 
 # ---------------------------------------------------------------------------------------------
-# The functions each have a recursive and tail call version
+# The functions below each have a recursive and tail call version
 
 # The code in each function pair is identical except for the use of 'recur','recurse' and 'tco','tc'
 # The recursive versions runs into stack issues fairly quickly and are generally quite a bit slower for large lists.
@@ -218,3 +218,52 @@ nd))))) T
 7524 " : " (40159 22317 41327 17860 41328 27087 4470 39032 41329 37544 10145 41330 41331 9719 3626 4082 41332) " : " (44129 41326 41043)
 -> T
 :
+
+# ---------------------------------------------------------------------------------------------
+# Versions that use picolisp's built in functions
+# NOTE: Much faster than the recursive and tco versions
+(de swappXchg (P L)
+   (when (and (pair P) (lst? L))
+      (ifn (> (cdr P) (car P))
+         (setq P (cons (cdr P) (car P))) )
+      (let
+         (Lst L
+            Lhs (car P)
+            Rhs (cdr P)
+            LhsN (nth L Lhs)
+            RhsN (nth LhsN (inc (- Rhs Lhs))) )
+         (when (and LhsN RhsN) (xchg LhsN RhsN))
+         L ) ) )
+
+(de mftConc (X N)
+   (cond
+      ((and (> N 1) (lst? X))
+         (let
+            (Elt (cons (car X))
+               Lhs (head (dec N) (cdr X))
+               Rhs (cdr (nth X N)) )
+            (con Elt Rhs)
+            (conc Lhs Elt)
+            Lhs ) )
+      (T X) ) )
+
+(de mftInsert (X N)
+   (cond
+      ((and (> N 1) (lst? X))
+        (insert N (cdr X) (car X)))
+       (T X)))
+
+(de mtfConc (X N)
+   (cond
+      ((and (> N 1) (lst? X))
+         (let
+            (Lhs (head (dec N) X)
+               Rhs (cdr (nth X (dec N)))
+               Elt (cons (car Rhs)) )
+            (ifn Rhs
+               X
+               (con Elt Lhs)
+               (conc Elt (cdr Rhs))
+               Elt ) ) )
+      (T X) ) )
+
